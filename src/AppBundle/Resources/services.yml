@@ -1,0 +1,12 @@
+services:
+#    user.example:
+#        class: UserBundle\Example
+#        arguments: ["@service_id", "plain_value", "%parameter%"]
+    product.repository:
+        class: AppBundle\Repository\ProductRepository
+        factory: ["@doctrine.orm.default_entity_manager", getRepository]
+        arguments:
+            - AppBundle\Entity\Product
+    product.model:
+        class: AppBundle\Model\ProductModel
+        arguments: ["@doctrine.orm.default_entity_manager", "@product.repository"]

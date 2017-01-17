@@ -215,16 +215,15 @@ class appDevDebugProjectContainerUrlMatcher extends Symfony\Bundle\FrameworkBund
                 }
                 not_product_show:
 
-                // Allproduct_show
-                if (preg_match('#^/product/(?P<id>[^/]++)$#s', $pathinfo, $matches)) {
-                    if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
-                        $allow = array_merge($allow, array('GET', 'HEAD'));
-                        goto not_Allproduct_show;
-                    }
-
-                    return $this->mergeDefaults(array_replace($matches, array('_route' => 'Allproduct_show')), array (  '_controller' => 'AppBundle\\Controller\\ProductController::showAllAction',));
+                // addToCart
+                if (0 === strpos($pathinfo, '/product/addToProduct') && preg_match('#^/product/addToProduct/(?P<id>[^/]++)$#s', $pathinfo, $matches)) {
+                    return $this->mergeDefaults(array_replace($matches, array('_route' => 'addToCart')), array (  '_controller' => 'AppBundle\\Controller\\ProductController::addProductToCartAction',));
                 }
-                not_Allproduct_show:
+
+                // showCart
+                if ($pathinfo === '/product/showCart') {
+                    return array (  '_controller' => 'AppBundle\\Controller\\ProductController::showCart',  '_route' => 'showCart',);
+                }
 
                 // product_edit
                 if (preg_match('#^/product/(?P<id>[^/]++)/edit$#s', $pathinfo, $matches)) {

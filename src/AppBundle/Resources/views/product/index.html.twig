@@ -1,5 +1,4 @@
-{% extends 'base.html.twig' %}
-
+{% extends '@App/base.html.twig' %}
 {% block body %}
     <h1>Products list</h1>
 
@@ -23,23 +22,13 @@
                 <td>{{ product.price }}</td>
                 <td>{{ product.photo }}</td>
                 <td>
-                    <ul>
-                        <li>
-                            <a href="{{ path('product_show', { 'id': product.id }) }}">show</a>
-                        </li>
-                        <li>
-                            <a href="{{ path('product_edit', { 'id': product.id }) }}">edit</a>
-                        </li>
-                    </ul>
-                </td>
+                    {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
+                <td><a href="{{ path('addToCart', {'id': product.id}) }}">Dodaj do koszyka</a>
+                    {% endif %}
             </tr>
         {% endfor %}
         </tbody>
     </table>
 
-    <ul>
-        <li>
-            <a href="{{ path('product_new') }}">Create a new product</a>
-        </li>
-    </ul>
+
 {% endblock %}

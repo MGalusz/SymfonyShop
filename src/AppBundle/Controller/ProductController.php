@@ -74,36 +74,59 @@ class ProductController extends Controller
         ));
     }
 
+
+
     /**
-     * Finds and displays a product entity.
+     * @Route("/addToProduct/{id}", name="addToCart")
      *
-     * @Route("/{id}", name="Allproduct_show"
      */
-    public function showAllAction(Request $request)
+    public function addProductToCartAction(Request $request, $id)
     {
-        $form = $this->createFormBuilder()
-            ->add('quanitty', 'number')
-            ->add('save', 'submit', array('label' => 'Dodaj do Koszyka'))
-            ->getForm();
-        if ($form->isSubmitted()) {
-            $post = $form->getData();
-            $session = $request->getSession();
-            $session->set($post);
-            $session->getFlashBag()->add('notice', 'Dodano do koszyka');
-            return $this->render('@App/product/index.html.twig', array(
-                'session' => $session,
-            ));
-        }
         $em = $this->getDoctrine()->getManager();
-        ;
 
         $products = $em->getRepository('AppBundle:Product')->findAll();
 
+        $em->getRepository('AppBundle:Product')->addToCart($request,$id);
+
         return $this->render('@App/product/index.html.twig', array(
             'products' => $products,
-            'form' => $form,
         ));
     }
+
+    /**
+     * @Route("/showCart", name="showCart")
+     *
+     */
+    public function showCart(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+       $cart =  $em->getRepository('AppBundle:Product')->getFromCart();
+
+        if( $cart != '' ) {
+
+            foreach( $cart as $id  ) {
+                $productIds[] = $id;
+
+            }
+
+            if( isset( $productIds ) )
+            {
+
+                $product = $em->getRepository('AppBundle:Product')->findById( $productIds );
+            }
+
+
+
+            return $this->render('@App/product/index.html.twig',     array(
+                'product' => $product,
+            ));
+        } else {
+            return $this->render('@App/product/index.html.twig',     array(
+                'empty' => true,
+            ));
+        }
+    }
+
 
     /**
      * Displays a form to edit an existing product entity.
