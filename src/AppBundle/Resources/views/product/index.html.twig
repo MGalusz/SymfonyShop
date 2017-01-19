@@ -26,6 +26,8 @@
                 <td><a href="{{ path('addToCart', {'id': product.id}) }}">Dodaj do koszyka</a>
                     {% endif %}
             </tr>
+        {% else %}
+            BRAK PRODUKTÓW W KOSZYKU !!!
         {% endfor %}
         </tbody>
     </table>

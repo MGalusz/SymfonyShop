@@ -21,11 +21,6 @@ class User extends BaseUser
      */
     protected $id;
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
     /**
      * @var string
      *
@@ -38,6 +33,11 @@ class User extends BaseUser
      */
     private $purchase;
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+    
     /**
      * Get id
      *

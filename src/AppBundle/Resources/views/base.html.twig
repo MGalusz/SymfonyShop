@@ -41,6 +41,11 @@
     <main>
         {% block body %}
         {% endblock %}
+        <div class="debug">
+            {% if session is defined %}
+                {{ dump(session) }}
+            {% endif %}
+        </div>
     </main>
     <footer>
     </footer>

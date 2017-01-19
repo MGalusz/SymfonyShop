@@ -43,7 +43,7 @@ class Purchase
     private $products;
 
     /**
-     * @ORM\OneToOne(targetEntity="User", mappedBy="purchase_id")
+     * @ORM\OneToOne(targetEntity="User", mappedBy="purchase")
      * @ORM\JoinColumn(name="user", referencedColumnName="id")
      */
     private $user;
