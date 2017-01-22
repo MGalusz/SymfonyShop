@@ -2,7 +2,6 @@
 
 namespace AppBundle\Repository;
 use Symfony\Component\HttpFoundation\Request;
-
 /**
  * ProductRepository
  *
@@ -11,24 +10,12 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class ProductRepository extends \Doctrine\ORM\EntityRepository
 {
-
-    public function addToCart(Request $request ,$id){
-        $session = $request->getSession();
-        $session->set('cart', $id);
-       $session->getFlashBag()->add('notice', 'Dodano do koszyka');
-
-    }
-
-    public function getFromCart(Request $request){
-        $session = $request->getSession();
-        $value = $session->get('cart');
-
-        if (!isset($value)) {
-            return new Response('Twoj Koszyk jest pusty');
-        }
-
-        return new Response($value);
-
-
+    public function getProductsByIdArray($idArray){
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+        $qb->select('p');
+        $qb->from('AppBundle:Product', 'p');
+        $qb->where($qb->expr()->in('p.id', $idArray));
+        return $qb->getQuery()->getResult();
     }
 }

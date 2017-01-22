@@ -2,10 +2,13 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Product;
 use AppBundle\Entity\Purchase;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
  * Purchase controller.
@@ -27,39 +30,52 @@ class PurchaseController extends Controller
         $purchases = $em->getRepository('AppBundle:Purchase')->findAll();
 
 
-        return $this->render('purchase/index.html.twig', array(
+        return $this->render('App/purchase/index.html.twig', array(
             'purchases' => $purchases,
         ));
 
     }
 
-
-
     /**
      * Creates a new purchase entity.
      *
-     * @Route("/new", name="purchase_new")
-     * @Method({"GET", "POST"})
+     * @Route("/perchaseNew/{sum},", name="purchase_new2")
+     * @Security("has_role('ROLE_USER')")
      */
-    public function newAction(Request $request)
+    public function newAction(Request $request, $sum)
     {
+
+
+        $em = $this->getDoctrine()->getManager();
+        $productIds = $request->getSession()->get('cart', []);
+        $productsInCart = [];
+
+        if (count($productIds) > 0) {
+            $productsInCart = $em->getRepository('AppBundle:Product')->getProductsByIdArray($productIds);
+
+        }
         $purchase = new Purchase();
-        $form = $this->createForm('AppBundle\Form\PurchaseType', $purchase);
-        $form->handleRequest($request);
+        $purchase->setStatus('zaplacono');
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($purchase);
-            $em->flush($purchase);
 
-            return $this->redirectToRoute('purchase_show', array('id' => $purchase->getId()));
+        foreach ($productsInCart as $product) {
+            $purchase->addProduct($product);
         }
 
-        return $this->render('purchase/new.html.twig', array(
-            'purchase' => $purchase,
-            'form' => $form->createView(),
-        ));
+        $purchase->setSum((int)$sum);
+        $purchase->setUser($this->get('security.token_storage')->getToken()->getUser());
+        var_dump($purchase);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($purchase);
+        $em->flush($purchase);
+        return $this->redirectToRoute('product_edit', array('id' => $purchase->getId()));
+
+
     }
+
+
+
 
     /**
      * Finds and displays a purchase entity.
@@ -71,7 +87,7 @@ class PurchaseController extends Controller
     {
         $deleteForm = $this->createDeleteForm($purchase);
 
-        return $this->render('purchase/show.html.twig', array(
+        return $this->render('App/purchase/show.html.twig', array(
             'purchase' => $purchase,
             'delete_form' => $deleteForm->createView(),
         ));
@@ -95,7 +111,7 @@ class PurchaseController extends Controller
             return $this->redirectToRoute('purchase_edit', array('id' => $purchase->getId()));
         }
 
-        return $this->render('purchase/edit.html.twig', array(
+        return $this->render('App/purchase/edit.html.twig', array(
             'purchase' => $purchase,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
@@ -107,6 +123,7 @@ class PurchaseController extends Controller
      *
      * @Route("/{id}", name="purchase_delete")
      * @Method("DELETE")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function deleteAction(Request $request, Purchase $purchase)
     {
@@ -134,7 +151,6 @@ class PurchaseController extends Controller
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('purchase_delete', array('id' => $purchase->getId())))
             ->setMethod('DELETE')
-            ->getForm()
-        ;
+            ->getForm();
     }
 }

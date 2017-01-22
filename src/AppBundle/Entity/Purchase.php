@@ -23,16 +23,16 @@ class Purchase
     private $id;
 
     /**
-     * @var int
+     * @var string
      *
-     * @ORM\Column(name="status", type="integer")
+     * @ORM\Column(name="status", type="string",nullable=false)
      */
     private $status;
 
     /**
-     * @var string
+     * @var int
      *
-     * @ORM\Column(name="sum", type="decimal", precision=10, scale=2)
+     * @ORM\Column(name="sum", type="integer",nullable=false)
      */
     private $sum;
 
@@ -43,7 +43,7 @@ class Purchase
     private $products;
 
     /**
-     * @ORM\OneToOne(targetEntity="User", mappedBy="purchase_id")
+     * @ORM\OneToOne(targetEntity="User", mappedBy="purchase")
      * @ORM\JoinColumn(name="user", referencedColumnName="id")
      */
     private $user;

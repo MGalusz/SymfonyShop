@@ -6,6 +6,7 @@ use AppBundle\Entity\Admin;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
  * Admin controller.
@@ -19,6 +20,7 @@ class AdminController extends Controller
      *
      * @Route("/", name="admin_index")
      * @Method("GET")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function indexAction()
     {
@@ -26,7 +28,7 @@ class AdminController extends Controller
 
         $admins = $em->getRepository('AppBundle:Admin')->findAll();
 
-        return $this->render('admin/index.html.twig', array(
+        return $this->render('@App/admin/index.html.twig', array(
             'admins' => $admins,
         ));
     }
@@ -36,6 +38,7 @@ class AdminController extends Controller
      *
      * @Route("/new", name="admin_new")
      * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function newAction(Request $request)
     {
@@ -51,7 +54,7 @@ class AdminController extends Controller
             return $this->redirectToRoute('admin_show', array('id' => $admin->getId()));
         }
 
-        return $this->render('admin/new.html.twig', array(
+        return $this->render('App/admin/new.html.twig', array(
             'admin' => $admin,
             'form' => $form->createView(),
         ));
@@ -62,12 +65,13 @@ class AdminController extends Controller
      *
      * @Route("/{id}", name="admin_show")
      * @Method("GET")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function showAction(Admin $admin)
     {
         $deleteForm = $this->createDeleteForm($admin);
 
-        return $this->render('admin/show.html.twig', array(
+        return $this->render('App/admin/show.html.twig', array(
             'admin' => $admin,
             'delete_form' => $deleteForm->createView(),
         ));
@@ -78,6 +82,7 @@ class AdminController extends Controller
      *
      * @Route("/{id}/edit", name="admin_edit")
      * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function editAction(Request $request, Admin $admin)
     {
@@ -91,7 +96,7 @@ class AdminController extends Controller
             return $this->redirectToRoute('admin_edit', array('id' => $admin->getId()));
         }
 
-        return $this->render('admin/edit.html.twig', array(
+        return $this->render('App/admin/edit.html.twig', array(
             'admin' => $admin,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
@@ -103,6 +108,7 @@ class AdminController extends Controller
      *
      * @Route("/{id}", name="admin_delete")
      * @Method("DELETE")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function deleteAction(Request $request, Admin $admin)
     {

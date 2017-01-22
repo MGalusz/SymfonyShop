@@ -21,10 +21,7 @@ class User extends BaseUser
      */
     protected $id;
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
+
 
     /**
      * @var string
@@ -43,6 +40,10 @@ class User extends BaseUser
      *
      * @return int
      */
+    public function __construct()
+    {
+        parent::__construct();
+    }
     public function getId()
     {
         return $this->id;

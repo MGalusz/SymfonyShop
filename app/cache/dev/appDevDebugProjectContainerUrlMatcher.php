@@ -176,6 +176,22 @@ class appDevDebugProjectContainerUrlMatcher extends Symfony\Bundle\FrameworkBund
             return array (  '_controller' => 'AppBundle\\Controller\\DefaultController::indexAction',  '_route' => 'homepage',);
         }
 
+        // user_delete_link
+        if (preg_match('#^/(?P<id>[^/]++)/delete$#s', $pathinfo, $matches)) {
+            return $this->mergeDefaults(array_replace($matches, array('_route' => 'user_delete_link')), array (  '_controller' => 'AppBundle\\Controller\\DefaultController::deleteLinkAction',));
+        }
+
+        // admin_page
+        if ($pathinfo === '/admin') {
+            if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
+                $allow = array_merge($allow, array('GET', 'HEAD'));
+                goto not_admin_page;
+            }
+
+            return array (  '_controller' => 'AppBundle\\Controller\\DefaultController::adminAction',  '_route' => 'admin_page',);
+        }
+        not_admin_page:
+
         if (0 === strpos($pathinfo, '/p')) {
             if (0 === strpos($pathinfo, '/product')) {
                 // product_index
@@ -204,6 +220,16 @@ class appDevDebugProjectContainerUrlMatcher extends Symfony\Bundle\FrameworkBund
                 }
                 not_product_new:
 
+                // addToCart
+                if (0 === strpos($pathinfo, '/product/addToProduct') && preg_match('#^/product/addToProduct/(?P<id>\\d+)$#s', $pathinfo, $matches)) {
+                    return $this->mergeDefaults(array_replace($matches, array('_route' => 'addToCart')), array (  '_controller' => 'AppBundle\\Controller\\ProductController::addProductToCartAction',));
+                }
+
+                // showCart
+                if ($pathinfo === '/product/showCart') {
+                    return array (  '_controller' => 'AppBundle\\Controller\\ProductController::showCart',  '_route' => 'showCart',);
+                }
+
                 // product_show
                 if (preg_match('#^/product/(?P<id>[^/]++)$#s', $pathinfo, $matches)) {
                     if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
@@ -215,18 +241,8 @@ class appDevDebugProjectContainerUrlMatcher extends Symfony\Bundle\FrameworkBund
                 }
                 not_product_show:
 
-                // addToCart
-                if (0 === strpos($pathinfo, '/product/addToProduct') && preg_match('#^/product/addToProduct/(?P<id>[^/]++)$#s', $pathinfo, $matches)) {
-                    return $this->mergeDefaults(array_replace($matches, array('_route' => 'addToCart')), array (  '_controller' => 'AppBundle\\Controller\\ProductController::addProductToCartAction',));
-                }
-
-                // showCart
-                if ($pathinfo === '/product/showCart') {
-                    return array (  '_controller' => 'AppBundle\\Controller\\ProductController::showCart',  '_route' => 'showCart',);
-                }
-
                 // product_edit
-                if (preg_match('#^/product/(?P<id>[^/]++)/edit$#s', $pathinfo, $matches)) {
+                if (preg_match('#^/product/(?P<id>\\d+)/edit$#s', $pathinfo, $matches)) {
                     if (!in_array($this->context->getMethod(), array('GET', 'POST', 'HEAD'))) {
                         $allow = array_merge($allow, array('GET', 'POST', 'HEAD'));
                         goto not_product_edit;
@@ -237,7 +253,7 @@ class appDevDebugProjectContainerUrlMatcher extends Symfony\Bundle\FrameworkBund
                 not_product_edit:
 
                 // product_delete
-                if (preg_match('#^/product/(?P<id>[^/]++)$#s', $pathinfo, $matches)) {
+                if (preg_match('#^/product/(?P<id>\\d+)$#s', $pathinfo, $matches)) {
                     if ($this->context->getMethod() != 'DELETE') {
                         $allow[] = 'DELETE';
                         goto not_product_delete;
@@ -265,16 +281,10 @@ class appDevDebugProjectContainerUrlMatcher extends Symfony\Bundle\FrameworkBund
                 }
                 not_purchase_index:
 
-                // purchase_new
-                if ($pathinfo === '/purchase/new') {
-                    if (!in_array($this->context->getMethod(), array('GET', 'POST', 'HEAD'))) {
-                        $allow = array_merge($allow, array('GET', 'POST', 'HEAD'));
-                        goto not_purchase_new;
-                    }
-
-                    return array (  '_controller' => 'AppBundle\\Controller\\PurchaseController::newAction',  '_route' => 'purchase_new',);
+                // purchase_new2
+                if (0 === strpos($pathinfo, '/purchase/perchaseNew') && preg_match('#^/purchase/perchaseNew/(?P<sum>[^/,]++),$#s', $pathinfo, $matches)) {
+                    return $this->mergeDefaults(array_replace($matches, array('_route' => 'purchase_new2')), array (  '_controller' => 'AppBundle\\Controller\\PurchaseController::newAction',));
                 }
-                not_purchase_new:
 
                 // purchase_show
                 if (preg_match('#^/purchase/(?P<id>[^/]++)$#s', $pathinfo, $matches)) {

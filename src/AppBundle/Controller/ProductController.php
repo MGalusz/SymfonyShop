@@ -1,5 +1,4 @@
 <?php
-
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Product;
@@ -7,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 
 /**
  * Product controller.
@@ -24,9 +24,7 @@ class ProductController extends Controller
     public function indexAction()
     {
         $em = $this->getDoctrine()->getManager();
-
         $products = $em->getRepository('AppBundle:Product')->findAll();
-
         return $this->render('@App/product/index.html.twig', array(
             'products' => $products,
         ));
@@ -43,53 +41,30 @@ class ProductController extends Controller
         $product = new Product();
         $form = $this->createForm('AppBundle\Form\ProductType', $product);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $em->persist($product);
             $em->flush($product);
-
             return $this->redirectToRoute('product_show', array('id' => $product->getId()));
         }
-
-        return $this->render('product/new.html.twig', array(
+        return $this->render('@App/product/new.html.twig', array(
             'product' => $product,
             'form' => $form->createView(),
         ));
     }
 
     /**
-     * Finds and displays a product entity.
-     *
-     * @Route("/{id}", name="product_show")
-     * @Method("GET")
-     */
-    public function showAction(Product $product)
-    {
-        $deleteForm = $this->createDeleteForm($product);
-
-        return $this->render('product/show.html.twig', array(
-            'product' => $product,
-            'delete_form' => $deleteForm->createView(),
-        ));
-    }
-
-
-
-    /**
-     * @Route("/addToProduct/{id}", name="addToCart")
+     * @Route("/addToProduct/{id}",requirements={"id"="\d+"}, name="addToCart")
      *
      */
     public function addProductToCartAction(Request $request, $id)
     {
         $em = $this->getDoctrine()->getManager();
-
         $products = $em->getRepository('AppBundle:Product')->findAll();
-
-        $em->getRepository('AppBundle:Product')->addToCart($request,$id);
-
+        $this->addToCart($request->getSession(), $id);
         return $this->render('@App/product/index.html.twig', array(
             'products' => $products,
+            'session' => $request->getSession()
         ));
     }
 
@@ -100,53 +75,53 @@ class ProductController extends Controller
     public function showCart(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-       $cart =  $em->getRepository('AppBundle:Product')->getFromCart();
+        $productIds = $request->getSession()->get('cart', []);
+        $productsInCart = [];
 
-        if( $cart != '' ) {
-
-            foreach( $cart as $id  ) {
-                $productIds[] = $id;
-
-            }
-
-            if( isset( $productIds ) )
-            {
-
-                $product = $em->getRepository('AppBundle:Product')->findById( $productIds );
-            }
-
-
-
-            return $this->render('@App/product/index.html.twig',     array(
-                'product' => $product,
-            ));
-        } else {
-            return $this->render('@App/product/index.html.twig',     array(
-                'empty' => true,
-            ));
+        if (count($productIds) > 0) {
+            $productsInCart = $em->getRepository('AppBundle:Product')->getProductsByIdArray($productIds);
+            $productsSum = $this->getSum($productsInCart);
         }
+        return $this->render('@App/cart/index.html.twig', array(
+            'products' => $productsInCart,
+            'productsSum' => $productsSum,
+        ));
     }
 
+    /**
+     * Finds and displays a product entity.
+     *
+     * @Route("/{id}", name="product_show")
+     * @Method("GET")
+     *
+     */
+    public function showAction(Request $request, Product $product)
+    {
+        $deleteForm = $this->createDeleteForm($product);
+        return $this->render('@App/product/show.html.twig', array(
+            'product' => $product,
+            'delete_form' => $deleteForm->createView(),
+            'session' => $request->getSession()
+        ));
+    }
 
     /**
      * Displays a form to edit an existing product entity.
      *
-     * @Route("/{id}/edit", name="product_edit")
+     * @Route("/{id}/edit",requirements={"id"="\d+"}, name="product_edit")
      * @Method({"GET", "POST"})
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function editAction(Request $request, Product $product)
     {
         $deleteForm = $this->createDeleteForm($product);
         $editForm = $this->createForm('AppBundle\Form\ProductType', $product);
         $editForm->handleRequest($request);
-
         if ($editForm->isSubmitted() && $editForm->isValid()) {
             $this->getDoctrine()->getManager()->flush();
-
             return $this->redirectToRoute('product_edit', array('id' => $product->getId()));
         }
-
-        return $this->render('product/edit.html.twig', array(
+        return $this->render('@App/product/edit.html.twig', array(
             'product' => $product,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
@@ -156,20 +131,19 @@ class ProductController extends Controller
     /**
      * Deletes a product entity.
      *
-     * @Route("/{id}", name="product_delete")
+     * @Route("/{id}",requirements={"id"="\d+"}, name="product_delete")
      * @Method("DELETE")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function deleteAction(Request $request, Product $product)
     {
         $form = $this->createDeleteForm($product);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $em->remove($product);
             $em->flush($product);
         }
-
         return $this->redirectToRoute('product_index');
     }
 
@@ -185,7 +159,27 @@ class ProductController extends Controller
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('product_delete', array('id' => $product->getId())))
             ->setMethod('DELETE')
-            ->getForm()
-        ;
+            ->getForm();
     }
+
+    private function addToCart($session, $id)
+    {
+        $myCartProducts = $session->get('cart', []);
+        $myCartProducts[] = $id;
+        $session->set('cart', $myCartProducts);
+        $session->getFlashBag()->add('notice', 'Dodano do koszyka');
+    }
+
+    public function getSum($products)
+    {
+        $sum = 0;
+
+        foreach ($products as $product) {
+            $sum += $product->getPrice();
+        }
+
+        return $sum;
+
+    }
+
 }

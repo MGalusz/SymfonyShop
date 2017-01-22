@@ -1,0 +1,46 @@
+{% extends '@App/base.html.twig' %}
+{% block body %}
+    <h1>Koszyk</h1>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Photo</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product in products %}
+            <tr>
+                <td><a href="{{ path('product_show', { 'id': product.id }) }}">{{ product.id }}</a></td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.description }}</td>
+                <td>{{ product.price }}</td>
+                <td>{{ product.photo }}</td>
+
+
+
+
+            </tr>
+
+        {% endfor %}
+
+
+        </tbody>
+<nav >
+    <ul class="nav nav-pills" style="float: right;">
+        <li role="presentation">Suma : {{ productsSum  }} </li>
+    <br>
+
+
+
+</nav>
+        <li role="presentation"><a href="{{ path('purchase_new2',{'sum' : productsSum }) }}">Potwierdz zamowienie</a></li>
+    </table>
+
+
+{% endblock %}
