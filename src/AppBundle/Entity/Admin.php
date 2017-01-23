@@ -36,10 +36,12 @@ class Admin
     private $password;
 
 
+
+
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -50,6 +52,7 @@ class Admin
      * Set email
      *
      * @param string $email
+     *
      * @return Admin
      */
     public function setEmail($email)
@@ -62,7 +65,7 @@ class Admin
     /**
      * Get email
      *
-     * @return string 
+     * @return string
      */
     public function getEmail()
     {
@@ -73,6 +76,7 @@ class Admin
      * Set password
      *
      * @param string $password
+     *
      * @return Admin
      */
     public function setPassword($password)
@@ -85,7 +89,7 @@ class Admin
     /**
      * Get password
      *
-     * @return string 
+     * @return string
      */
     public function getPassword()
     {

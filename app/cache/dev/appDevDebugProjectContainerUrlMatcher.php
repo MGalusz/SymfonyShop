@@ -287,7 +287,7 @@ class appDevDebugProjectContainerUrlMatcher extends Symfony\Bundle\FrameworkBund
                 }
 
                 // purchase_show
-                if (preg_match('#^/purchase/(?P<id>[^/]++)$#s', $pathinfo, $matches)) {
+                if (0 === strpos($pathinfo, '/purchase/show') && preg_match('#^/purchase/show/(?P<id>[^/]++)$#s', $pathinfo, $matches)) {
                     if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
                         $allow = array_merge($allow, array('GET', 'HEAD'));
                         goto not_purchase_show;

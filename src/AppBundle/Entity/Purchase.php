@@ -43,20 +43,23 @@ class Purchase
     private $products;
 
     /**
-     * @ORM\OneToOne(targetEntity="User", mappedBy="purchase")
-     * @ORM\JoinColumn(name="user", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="purchase")
+     * @ORM\JoinColumn(name="user_ID", referencedColumnName="id")
      */
     private $user;
 
     public function __construct()
     {
         $this->products = new ArrayCollection();
+
     }
+
+
 
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -66,7 +69,8 @@ class Purchase
     /**
      * Set status
      *
-     * @param integer $status
+     * @param string $status
+     *
      * @return Purchase
      */
     public function setStatus($status)
@@ -79,7 +83,7 @@ class Purchase
     /**
      * Get status
      *
-     * @return integer 
+     * @return string
      */
     public function getStatus()
     {
@@ -89,7 +93,8 @@ class Purchase
     /**
      * Set sum
      *
-     * @param string $sum
+     * @param integer $sum
+     *
      * @return Purchase
      */
     public function setSum($sum)
@@ -102,7 +107,7 @@ class Purchase
     /**
      * Get sum
      *
-     * @return string 
+     * @return integer
      */
     public function getSum()
     {
@@ -110,32 +115,33 @@ class Purchase
     }
 
     /**
-     * Add products
+     * Add product
      *
-     * @param \AppBundle\Entity\Product $products
+     * @param \AppBundle\Entity\Product $product
+     *
      * @return Purchase
      */
-    public function addProduct(\AppBundle\Entity\Product $products)
+    public function addProduct(\AppBundle\Entity\Product $product)
     {
-        $this->products[] = $products;
+        $this->products[] = $product;
 
         return $this;
     }
 
     /**
-     * Remove products
+     * Remove product
      *
-     * @param \AppBundle\Entity\Product $products
+     * @param \AppBundle\Entity\Product $product
      */
-    public function removeProduct(\AppBundle\Entity\Product $products)
+    public function removeProduct(\AppBundle\Entity\Product $product)
     {
-        $this->products->removeElement($products);
+        $this->products->removeElement($product);
     }
 
     /**
      * Get products
      *
-     * @return \Doctrine\Common\Collections\Collection 
+     * @return \Doctrine\Common\Collections\Collection
      */
     public function getProducts()
     {
@@ -143,9 +149,44 @@ class Purchase
     }
 
     /**
+     * Add user
+     *
+     * @param \AppBundle\Entity\User $user
+     *
+     * @return Purchase
+     */
+    public function addUser(\AppBundle\Entity\User $user)
+    {
+        $this->user[] = $user;
+
+        return $this;
+    }
+
+    /**
+     * Remove user
+     *
+     * @param \AppBundle\Entity\User $user
+     */
+    public function removeUser(\AppBundle\Entity\User $user)
+    {
+        $this->user->removeElement($user);
+    }
+
+    /**
+     * Get user
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
      * Set user
      *
      * @param \AppBundle\Entity\User $user
+     *
      * @return Purchase
      */
     public function setUser(\AppBundle\Entity\User $user = null)
@@ -153,15 +194,5 @@ class Purchase
         $this->user = $user;
 
         return $this;
-    }
-
-    /**
-     * Get user
-     *
-     * @return \AppBundle\Entity\User 
-     */
-    public function getUser()
-    {
-        return $this->user;
     }
 }

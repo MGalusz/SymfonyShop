@@ -36,6 +36,8 @@ class PurchaseController extends Controller
 
     }
 
+
+
     /**
      * Creates a new purchase entity.
      *
@@ -59,17 +61,19 @@ class PurchaseController extends Controller
 
 
         foreach ($productsInCart as $product) {
+            var_dump($product);
             $purchase->addProduct($product);
+            $em->persist($product);
         }
 
         $purchase->setSum((int)$sum);
         $purchase->setUser($this->get('security.token_storage')->getToken()->getUser());
-        var_dump($purchase);
 
-        $em = $this->getDoctrine()->getManager();
         $em->persist($purchase);
+
         $em->flush($purchase);
-        return $this->redirectToRoute('product_edit', array('id' => $purchase->getId()));
+
+        return $this->redirectToRoute('purchase_show', array('id' => $purchase->getId()));
 
 
     }
@@ -80,14 +84,17 @@ class PurchaseController extends Controller
     /**
      * Finds and displays a purchase entity.
      *
-     * @Route("/{id}", name="purchase_show")
+     * @Route("/show/{id}", name="purchase_show")
      * @Method("GET")
      */
-    public function showAction(Purchase $purchase)
+    public function showAction($id)
     {
+        $em = $this->getDoctrine()->getManager();
+
+        $purchase = $em->getRepository('AppBundle:Purchase')->findOneById($id);
         $deleteForm = $this->createDeleteForm($purchase);
 
-        return $this->render('App/purchase/show.html.twig', array(
+        return $this->render('@App/purchase/show.html.twig', array(
             'purchase' => $purchase,
             'delete_form' => $deleteForm->createView(),
         ));

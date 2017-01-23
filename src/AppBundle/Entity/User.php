@@ -1,6 +1,7 @@
 <?php
 
 namespace AppBundle\Entity;
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -21,8 +22,6 @@ class User extends BaseUser
      */
     protected $id;
 
-
-
     /**
      * @var string
      *
@@ -31,8 +30,8 @@ class User extends BaseUser
     private $address;
 
     /**
-     * @ORM\OneToOne(targetEntity="Purchase", inversedBy="user")
-     */
+     * @ORM\OneToMany(targetEntity="Purchase", mappedBy ="user")
+      */
     private $purchase;
 
     /**
@@ -43,11 +42,9 @@ class User extends BaseUser
     public function __construct()
     {
         parent::__construct();
+        $this->purchase = new ArrayCollection();
     }
-    public function getId()
-    {
-        return $this->id;
-    }
+
 
     /**
      * Set address
@@ -95,5 +92,29 @@ class User extends BaseUser
     public function getPurchase()
     {
         return $this->purchase;
+    }
+
+    /**
+     * Add purchase
+     *
+     * @param \AppBundle\Entity\Purchase $purchase
+     *
+     * @return User
+     */
+    public function addPurchase(\AppBundle\Entity\Purchase $purchase)
+    {
+        $this->purchase[] = $purchase;
+
+        return $this;
+    }
+
+    /**
+     * Remove purchase
+     *
+     * @param \AppBundle\Entity\Purchase $purchase
+     */
+    public function removePurchase(\AppBundle\Entity\Purchase $purchase)
+    {
+        $this->purchase->removeElement($purchase);
     }
 }

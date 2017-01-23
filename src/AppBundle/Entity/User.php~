@@ -1,6 +1,7 @@
 <?php
 
 namespace AppBundle\Entity;
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -21,11 +22,6 @@ class User extends BaseUser
      */
     protected $id;
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
     /**
      * @var string
      *
@@ -34,8 +30,8 @@ class User extends BaseUser
     private $address;
 
     /**
-     * @ORM\OneToOne(targetEntity="Purchase", inversedBy="user")
-     */
+     * @ORM\OneToMany(targetEntity="Purchase",  mappedBy ="user")
+      */
     private $purchase;
 
     /**
@@ -43,10 +39,12 @@ class User extends BaseUser
      *
      * @return int
      */
-    public function getId()
+    public function __construct()
     {
-        return $this->id;
+        parent::__construct();
+        $this->purchase = new ArrayCollection();
     }
+
 
     /**
      * Set address
