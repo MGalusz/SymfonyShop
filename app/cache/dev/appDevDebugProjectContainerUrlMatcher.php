@@ -105,68 +105,6 @@ class appDevDebugProjectContainerUrlMatcher extends Symfony\Bundle\FrameworkBund
 
         }
 
-        if (0 === strpos($pathinfo, '/admin')) {
-            // admin_index
-            if (rtrim($pathinfo, '/') === '/admin') {
-                if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
-                    $allow = array_merge($allow, array('GET', 'HEAD'));
-                    goto not_admin_index;
-                }
-
-                if (substr($pathinfo, -1) !== '/') {
-                    return $this->redirect($pathinfo.'/', 'admin_index');
-                }
-
-                return array (  '_controller' => 'AppBundle\\Controller\\AdminController::indexAction',  '_route' => 'admin_index',);
-            }
-            not_admin_index:
-
-            // admin_new
-            if ($pathinfo === '/admin/new') {
-                if (!in_array($this->context->getMethod(), array('GET', 'POST', 'HEAD'))) {
-                    $allow = array_merge($allow, array('GET', 'POST', 'HEAD'));
-                    goto not_admin_new;
-                }
-
-                return array (  '_controller' => 'AppBundle\\Controller\\AdminController::newAction',  '_route' => 'admin_new',);
-            }
-            not_admin_new:
-
-            // admin_show
-            if (preg_match('#^/admin/(?P<id>[^/]++)$#s', $pathinfo, $matches)) {
-                if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
-                    $allow = array_merge($allow, array('GET', 'HEAD'));
-                    goto not_admin_show;
-                }
-
-                return $this->mergeDefaults(array_replace($matches, array('_route' => 'admin_show')), array (  '_controller' => 'AppBundle\\Controller\\AdminController::showAction',));
-            }
-            not_admin_show:
-
-            // admin_edit
-            if (preg_match('#^/admin/(?P<id>[^/]++)/edit$#s', $pathinfo, $matches)) {
-                if (!in_array($this->context->getMethod(), array('GET', 'POST', 'HEAD'))) {
-                    $allow = array_merge($allow, array('GET', 'POST', 'HEAD'));
-                    goto not_admin_edit;
-                }
-
-                return $this->mergeDefaults(array_replace($matches, array('_route' => 'admin_edit')), array (  '_controller' => 'AppBundle\\Controller\\AdminController::editAction',));
-            }
-            not_admin_edit:
-
-            // admin_delete
-            if (preg_match('#^/admin/(?P<id>[^/]++)$#s', $pathinfo, $matches)) {
-                if ($this->context->getMethod() != 'DELETE') {
-                    $allow[] = 'DELETE';
-                    goto not_admin_delete;
-                }
-
-                return $this->mergeDefaults(array_replace($matches, array('_route' => 'admin_delete')), array (  '_controller' => 'AppBundle\\Controller\\AdminController::deleteAction',));
-            }
-            not_admin_delete:
-
-        }
-
         // homepage
         if (rtrim($pathinfo, '/') === '') {
             if (substr($pathinfo, -1) !== '/') {
@@ -282,8 +220,8 @@ class appDevDebugProjectContainerUrlMatcher extends Symfony\Bundle\FrameworkBund
                 not_purchase_index:
 
                 // purchase_new2
-                if (0 === strpos($pathinfo, '/purchase/perchaseNew') && preg_match('#^/purchase/perchaseNew/(?P<sum>[^/,]++),$#s', $pathinfo, $matches)) {
-                    return $this->mergeDefaults(array_replace($matches, array('_route' => 'purchase_new2')), array (  '_controller' => 'AppBundle\\Controller\\PurchaseController::newAction',));
+                if (0 === strpos($pathinfo, '/purchase/perchaseNew') && preg_match('#^/purchase/perchaseNew(?:/(?P<sum>[^/]++))?$#s', $pathinfo, $matches)) {
+                    return $this->mergeDefaults(array_replace($matches, array('_route' => 'purchase_new2')), array (  'sum' => 0,  '_controller' => 'AppBundle\\Controller\\PurchaseController::newAction',));
                 }
 
                 // purchase_show

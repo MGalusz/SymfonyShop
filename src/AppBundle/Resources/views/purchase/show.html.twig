@@ -22,7 +22,7 @@
                     <td>{{ purchase.product.photo }}</td>
                 {% endfor %}
             {% endfor %}
-       
+
         <tr>
             <th>Status</th>
             <td>{{ purchase.status }}</td>
@@ -33,7 +33,7 @@
         </tr>
         <tr>
             <th>User</th>
-            {{ dump(purchase.user) }}
+            {
             <td>{{ purchase.user.address }}</td>
         </tr>
         </tbody>

@@ -78,14 +78,17 @@ class ProductController extends Controller
         $productIds = $request->getSession()->get('cart', []);
         $productsInCart = [];
 
+
+
         if (count($productIds) > 0) {
             $productsInCart = $em->getRepository('AppBundle:Product')->getProductsByIdArray($productIds);
             $productsSum = $this->getSum($productsInCart);
+            return $this->render('@App/cart/index.html.twig', array(
+                'products' => $productsInCart,
+                'productsSum' => $productsSum,
+            ));
         }
-        return $this->render('@App/cart/index.html.twig', array(
-            'products' => $productsInCart,
-            'productsSum' => $productsSum,
-        ));
+        return $this->render('@App/cart/empty.html.twig' );
     }
 
     /**
@@ -172,6 +175,7 @@ class ProductController extends Controller
 
     public function getSum($products)
     {
+
         $sum = 0;
 
         foreach ($products as $product) {

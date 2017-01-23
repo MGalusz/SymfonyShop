@@ -5,6 +5,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 class DefaultController extends Controller
 {
     /**
@@ -27,16 +28,21 @@ class DefaultController extends Controller
     /**
      * @Route("/admin", name="admin_page")
      * @Method("GET")
+     * @Security("has_role('ROLE_ADMIN')")
      */
     public function adminAction()
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN', null, 'Access denied!');
+
         $em = $this->getDoctrine()->getManager();
         $users = $em->getRepository('AppBundle:User')->findAll();
         $products = $em->getRepository('AppBundle:Product')->findAll();
+        $purchase = $em->getRepository('AppBundle:Purchase')->findAll();
         return $this->render('@App/admin/index.html.twig', array(
             'users' => $users,
             'products' => $products,
+            'purchases' => $purchase,
         ));
     }
+
+
 }

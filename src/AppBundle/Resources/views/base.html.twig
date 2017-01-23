@@ -26,16 +26,18 @@
                 <li role="presentation"><a href="{{ path('product_index') }}">Produkty</a></li>
                 <li role="presentation"><a href="{{ path('showCart') }}">Koszyk</a></li>
                 {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
-                <li role="presentation"><a href="index.php?link=order">Zamówienie</a></li>
+                <li role="presentation"><a href={{ path('purchase_new2') }}>Zamówienie</a></li>
                 {% endif %}
             </ul>
 
             <ul class="nav nav-pills" style="float: right;">
-                {% if is_granted("ROLE_ADMIN") %}
-                    <li role="presentation"><a href="{{ path('admin_page') }}">PANEL ADMINA</a></li>
-                {% endif %}
+
+
                 {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
-                    <li role="presentation">Witaj ! {{ app.user.username }}</li>
+                    {% if is_granted("ROLE_ADMIN") %}
+                        <li role="presentation"><a href="{{ path('admin_page') }}">PANEL ADMINA</a></li>
+                    {% endif %}
+                    <li role="presentation">Witaj  {{ app.user.username }}!</li>
                     <li role="presentation"><a href="{{ path('fos_user_profile_show') }}">wejdź na swój profil</a></li>
                     <li role="presentation"><a href="{{ path('fos_user_security_logout') }}">Wyloguj się</a></li>
                 {% else %}

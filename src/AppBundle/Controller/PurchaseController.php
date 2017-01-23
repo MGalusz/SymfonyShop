@@ -41,12 +41,14 @@ class PurchaseController extends Controller
     /**
      * Creates a new purchase entity.
      *
-     * @Route("/perchaseNew/{sum},", name="purchase_new2")
+     * @Route("/perchaseNew/{sum}",defaults={"sum" = 0}, name="purchase_new2")
      * @Security("has_role('ROLE_USER')")
      */
     public function newAction(Request $request, $sum)
     {
-
+        if($sum == 0){
+            return $this->render('@App/purchase/empty.html.twig');
+        }
 
         $em = $this->getDoctrine()->getManager();
         $productIds = $request->getSession()->get('cart', []);
@@ -55,25 +57,26 @@ class PurchaseController extends Controller
         if (count($productIds) > 0) {
             $productsInCart = $em->getRepository('AppBundle:Product')->getProductsByIdArray($productIds);
 
+
+            $purchase = new Purchase();
+            $purchase->setStatus('zaplacono');
+
+
+            foreach ($productsInCart as $product) {
+
+                $purchase->addProduct($product);
+                $em->persist($product);
+            }
+
+            $purchase->setSum((int)$sum);
+            $purchase->setUser($this->get('security.token_storage')->getToken()->getUser());
+
+            $em->persist($purchase);
+
+            $em->flush($purchase);
+
+            return $this->redirectToRoute('purchase_show', array('id' => $purchase->getId()));
         }
-        $purchase = new Purchase();
-        $purchase->setStatus('zaplacono');
-
-
-        foreach ($productsInCart as $product) {
-            var_dump($product);
-            $purchase->addProduct($product);
-            $em->persist($product);
-        }
-
-        $purchase->setSum((int)$sum);
-        $purchase->setUser($this->get('security.token_storage')->getToken()->getUser());
-
-        $em->persist($purchase);
-
-        $em->flush($purchase);
-
-        return $this->redirectToRoute('purchase_show', array('id' => $purchase->getId()));
 
 
     }
